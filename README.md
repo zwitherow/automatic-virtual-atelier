@@ -37,12 +37,12 @@ It then parses all the contained YAML files to get the added items (and instance
 
 ### Requirements
 
-You need the following to build the JS app.
+You need the following to build the JS app:
 
 - [Git](https://git-scm.com/)
 - [NodeJS](https://nodejs.org/)
 
-The requirements for bundling NodeJS with the JS app (creating the executable) can be found [here](https://github.com/nodejs/node/blob/main/BUILDING.md#windows).
+The requirements for bundling NodeJS with the JS app (creating the executable) can be found [here](https://github.com/nexe/nexe?tab=readme-ov-file#compiling-the-nexe-executable).
 
 If you get the error `vcbuild.bat nosign release x64 exited with code: 1` you likely need to install the latest build of [NASM](https://www.nasm.us/).
 
