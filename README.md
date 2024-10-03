@@ -37,7 +37,7 @@ It then parses all the contained YAML files to get the added items (and instance
 
 ### Requirements
 
-You need the following to build the JS app:
+You need the following to bundle the JS app:
 
 - [Git](https://git-scm.com/)
 - [NodeJS](https://nodejs.org/)
@@ -73,3 +73,25 @@ npm run nexe
 ```
 
 You should now have an EXE located at `bin/AVA.exe`
+
+## Development
+
+Copy `example.env` to `.env` and update `MO_PATH` with your MO2 path. This needs to be the directory that contains `ModOrganizer.ini`. Rename `OUTPUT_MOD` to whatever you called your output mod.
+
+Run in watch mode (NODE_ENV=development)
+
+```
+npm run dev
+```
+
+Bundle the JS app
+
+```
+npm run build
+```
+
+Run the JS app (NODE_ENV=development)
+
+```
+npm run start
+```

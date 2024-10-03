@@ -1,4 +1,4 @@
-import fs from 'fs-extra'
+import { readFileSync, readdirSync } from 'fs-extra'
 import path from 'path'
 import yaml from 'yaml'
 import type { ShopData } from '../types'
@@ -64,8 +64,7 @@ export function generateShops(MO_PATH: string, PROFILE: string) {
 function parseModlist(MO_PATH: string, PROFILE: string) {
   const modlistPath = path.join(MO_PATH, 'profiles', PROFILE, 'modlist.txt')
 
-  const modlist = fs
-    .readFileSync(modlistPath, 'utf8')
+  const modlist = readFileSync(modlistPath, 'utf8')
     .split('\n')
     .map(line => line.trim())
     .filter(line => line && !line.startsWith('#'))
@@ -105,15 +104,14 @@ function parseModlist(MO_PATH: string, PROFILE: string) {
 }
 
 function fileListFromDir(dir: string) {
-  return fs
-    .readdirSync(dir, { recursive: true })
+  return readdirSync(dir, { recursive: true })
     .filter(file => typeof file === 'string')
     .filter(file => file.endsWith('.yaml') || file.endsWith('.yml'))
     .map(file => path.join(dir, file))
 }
 
 function itemListFromFilePath(filepath: string) {
-  const file = fs.readFileSync(filepath, 'utf8')
+  const file = readFileSync(filepath, 'utf8')
   const parsed = yaml.parse(file, { logLevel: 'silent', maxAliasCount: -1 })
 
   const items: string[] = []
