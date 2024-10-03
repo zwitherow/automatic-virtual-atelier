@@ -9,7 +9,7 @@
     "start": "cross-env NODE_ENV=development node dist/index.js",
     "nexe": "tsup && nexe dist/index.js --build --output bin/AVA.exe",
     "format": "prettier --write src/**/*.ts",
-    "7z": "7z a release/automatic-virtual-atelier-%npm_package_version%.7z ./bin/AVA.exe"
+    "7z": "7z a release/automatic-virtual-atelier-v%npm_package_version%.7z ./bin/AVA.exe"
   },
   "keywords": [],
   "author": "Zach Witherow",
