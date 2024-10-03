@@ -78,7 +78,7 @@ You should now have an EXE located at `bin/AVA.exe`
 
 Copy `example.env` to `.env` and update `MO_PATH` with your MO2 path. This needs to be the directory that contains `ModOrganizer.ini`. Rename `OUTPUT_MOD` to whatever you called your output mod.
 
-Run in watch mode (NODE_ENV=development)
+Run in watch mode (uses settings in `.env`)
 
 ```
 npm run dev
@@ -90,8 +90,10 @@ Bundle the JS app
 npm run build
 ```
 
-Run the JS app (NODE_ENV=development)
+Run the JS app (uses settings in `.env`)
 
 ```
 npm run start
 ```
+
+Your `.env` settings will not be used when building the executable.

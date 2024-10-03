@@ -13,46 +13,27 @@ function main() {
 
   let spinner = ora('Parsing ModOrganizer.ini...').start()
 
-  const result = parseIni()
+  const { MO_PATH, GAME_PATH, PROFILE, error } = parseIni()
 
-  if (result === null) {
-    spinner.fail('No path argument provided!')
-
-    console.log(
-      "\n - You must add your MO2 path in the 'Arguments' field in MO2's executables settings for AVA.\n"
-    )
+  if (error) {
+    spinner.fail('Error parsing ModOrganizer.ini!\n')
+    console.log(error)
 
     exit()
     return
   }
 
-  const { MO_PATH, GAME_PATH, PROFILE } = result
+  spinner.succeed('Validated ModOrganizer.ini\n')
 
-  if (MO_PATH === null) {
-    spinner.fail('Failed to find ModOrganizer.ini')
-    exit()
-    return
-  }
-
-  if (GAME_PATH === null || PROFILE === null) {
-    spinner.fail('Failed to parse ModOrganizer.ini')
-    exit()
-    return
-  }
-
-  spinner.succeed('Validated ModOrganizer.ini')
-
-  console.log('')
   console.log(' - Game Path:', GAME_PATH)
   console.log(' - MO2 Path:', MO_PATH)
-  console.log(' - Profile:', PROFILE)
-  console.log('')
+  console.log(' - Profile:', PROFILE, '\n')
 
   spinner = ora('Generating shops...').start()
 
   const shops = generateShops(MO_PATH, PROFILE)
 
-  spinner.succeed('Generated shops')
+  spinner.succeed('Generated shops\n')
 
   const shopsDir =
     process.env.NODE_ENV === 'development'
@@ -72,7 +53,7 @@ function main() {
 
   const duration = formatDuration(Date.now() - startTime) as string
 
-  console.log('\n - Path:', shopsPath)
+  console.log(' - Path:', shopsPath)
   console.log(' - Size:', size)
   console.log(' - Time:', duration, '\n')
 
