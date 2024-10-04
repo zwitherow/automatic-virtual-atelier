@@ -53,12 +53,18 @@ export function generateShops(MO_PATH: string, PROFILE: string) {
     allItems.push(...items)
   }
 
+  const allItemsUnique = [...new Set(allItems)]
+
   const allItemsOutput = template
     .replace('{{storeId}}', 'avaAllItemsStore')
     .replace('{{storeLabel}}', '! All Items (AVA)')
-    .replace('{{itemArray}}', JSON.stringify([...new Set(allItems)]))
+    .replace('{{itemArray}}', JSON.stringify(allItemsUnique))
 
-  return header + shopsOutput + allItemsOutput + footer
+  return {
+    shopsCount: groups.length,
+    itemsCount: allItemsUnique.length,
+    shopsData: header + shopsOutput + allItemsOutput + footer
+  }
 }
 
 function parseModlist(MO_PATH: string, PROFILE: string) {

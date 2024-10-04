@@ -11,30 +11,29 @@ main()
 function main() {
   const startTime = Date.now()
 
-  let spinner = ora('Parsing ModOrganizer.ini...').start()
+  let spinner = ora(' Parsing ModOrganizer.ini...').start()
 
   const { MO_PATH, GAME_PATH, PROFILE, error } = parseIni()
 
   if (error) {
-    spinner.fail('Error parsing ModOrganizer.ini!\n')
+    spinner.fail(' Error parsing ModOrganizer.ini!\n')
     console.log(error)
 
     exit()
     return
   }
 
-  spinner.succeed('Validated ModOrganizer.ini\n')
+  spinner.succeed(' Validated ModOrganizer.ini\n')
 
   console.log(' - Game Path:', GAME_PATH)
   console.log(' - MO2 Path:', MO_PATH)
   console.log(' - Profile:', PROFILE, '\n')
 
-  spinner = ora('Generating shops...').start()
+  spinner = ora(' Generating shops...').start()
 
-  const shops = generateShops(MO_PATH, PROFILE)
+  const { shopsCount, itemsCount, shopsData } = generateShops(MO_PATH, PROFILE)
 
-  spinner.succeed('Generated shops\n')
-
+  spinner.succeed(` Added ${itemsCount} items to ${shopsCount} shops\n`)
   const shopsDir =
     process.env.NODE_ENV === 'development'
       ? path.join(MO_PATH, 'mods', process.env.OUTPUT_MOD!, 'r6', 'scripts')
@@ -48,7 +47,7 @@ function main() {
   let size: string
 
   ensureDirSync(shopsDir)
-  writeFileSync(shopsPath, shops, 'utf8')
+  writeFileSync(shopsPath, shopsData, 'utf8')
   size = formatSize(statSync(shopsPath).size) as string
 
   const duration = formatDuration(Date.now() - startTime) as string
