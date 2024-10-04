@@ -25,6 +25,10 @@ The separators _MUST_ begin with **AVA and then a space**.
 
 Now just run the executable from MO2 and it will generate `r6/scripts/ava-generated-shops.reds` in your selected output mod (or your overwrite if you skipped steps 2 and 8). This will create a shop for each separator as well as a single shop containing all items.
 
+## Uninstall
+
+Remove the mod and the output mod you created in step 2 from Mod Organizer. If you didn't create an output mod, delete `r6/scripts/ava-generated-shops.reds` from your overwrite.
+
 ## How it works
 
 The executable takes your MO2 installation directory (or a subfolder) as an argument and looks for `ModOrganizer.ini`, traversing up the tree until it finds it.
