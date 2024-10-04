@@ -27,7 +27,7 @@ Now just run the executable from MO2 and it will generate `r6/scripts/ava-genera
 
 ## How it works
 
-The executable takes your MO2 installation directory (or a subfolder, see step 9) as an argument and looks for `ModOrganizer.ini`, traversing up the tree until it finds it.
+The executable takes your MO2 installation directory (or a subfolder) as an argument and looks for `ModOrganizer.ini`, traversing up the tree until it finds it.
 
 It parses the INI file to determine the game path and current MO profile. It then parses `<mo dir>/profiles/<current profile>/modlist.txt` to get the separators and associated mods.
 
