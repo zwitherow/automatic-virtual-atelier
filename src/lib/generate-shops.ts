@@ -1,8 +1,8 @@
 import { readFileSync, readdirSync } from 'fs-extra'
+import md5 from 'md5'
 import path from 'path'
 import yaml from 'yaml'
 import type { ShopData } from '../types'
-import md5 from 'md5'
 
 const header = `@addMethod(gameuiInGameMenuGameController)
 protected cb func RegisterStore(event: ref<VirtualShopRegistration>) -> Bool {
@@ -44,13 +44,15 @@ export function generateShops(MO_PATH: string, PROFILE: string) {
 
     const id = md5(group.label)
 
+    const dedupedItems = removeDedupe(items)
+
     const output = template
       .replace('{{storeId}}', id)
       .replace('{{storeLabel}}', group.label)
-      .replace('{{itemArray}}', JSON.stringify([...new Set(items)]))
+      .replace('{{itemArray}}', JSON.stringify(dedupedItems))
 
     shopsOutput += output
-    allItems.push(...items)
+    allItems.push(...dedupedItems)
   }
 
   const allItemsUnique = [...new Set(allItems)]
@@ -118,13 +120,18 @@ function fileListFromDir(dir: string) {
 
 function itemListFromFilePath(filepath: string) {
   const file = readFileSync(filepath, 'utf8')
-  const parsed = yaml.parse(file, { logLevel: 'silent', maxAliasCount: -1 })
+
+  const parsed = yaml.parse(dedupeNodes(file), {
+    logLevel: 'silent',
+    maxAliasCount: -1
+  })
 
   const items: string[] = []
   const regex = /\$[({]([^)}]*)[)}]/g
 
   for (const key in parsed) {
     if (!key.startsWith('Items.')) continue
+    if (!parsed[key].icon) continue
 
     const matches = key.match(regex)
 
@@ -147,4 +154,24 @@ function itemListFromFilePath(filepath: string) {
   }
 
   return items
+}
+
+function dedupeNodes(yaml: string) {
+  const regex = /^Items.[^:]*:/
+
+  return yaml
+    .split('\n')
+    .map(line => {
+      if (!line.match(regex)) return line
+
+      return line.replace(
+        ':',
+        `_ava_dedupe_${Math.random().toString(36).substring(2)}:`
+      )
+    })
+    .join('\n')
+}
+
+function removeDedupe(items: string[]) {
+  return [...new Set(items.map(item => item.replace(/_ava_dedupe_.*/, '')))]
 }

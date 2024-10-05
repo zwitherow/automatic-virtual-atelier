@@ -1,4 +1,4 @@
-import fs, { existsSync } from 'fs-extra'
+import { existsSync, readdirSync, readFileSync } from 'fs-extra'
 import { parse } from 'ini'
 import path from 'path'
 
@@ -34,7 +34,7 @@ export function parseIni() {
   }
 
   while (currentPath !== lastPath) {
-    const files = fs.readdirSync(currentPath)
+    const files = readdirSync(currentPath)
 
     if (files.includes('ModOrganizer.ini')) {
       MO_PATH = currentPath
@@ -54,7 +54,7 @@ export function parseIni() {
     }
   }
 
-  const ini = fs.readFileSync(path.join(MO_PATH, 'ModOrganizer.ini'), 'utf8')
+  const ini = readFileSync(path.join(MO_PATH, 'ModOrganizer.ini'), 'utf8')
   const config = parse(ini)
 
   const regex = /@ByteArray\(([^)]*)\)/
