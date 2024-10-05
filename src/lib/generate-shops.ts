@@ -1,4 +1,4 @@
-import { readFileSync, readdirSync } from 'fs-extra'
+import { appendFileSync, readFileSync, readdirSync } from 'fs-extra'
 import md5 from 'md5'
 import path from 'path'
 import yaml from 'yaml'
@@ -131,7 +131,7 @@ function itemListFromFilePath(filepath: string) {
 
   for (const key in parsed) {
     if (!key.startsWith('Items.')) continue
-    if (!parsed[key].icon) continue
+    if (!parsed[key].entityName) continue
 
     const matches = key.match(regex)
 
