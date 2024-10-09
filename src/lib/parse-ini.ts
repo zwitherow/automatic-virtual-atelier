@@ -4,10 +4,9 @@ import path from 'path'
 
 export function parseIni() {
   let lastPath: string | null = null
-  let currentPath =
-    process.env.NODE_ENV === 'development'
-      ? process.env.MO_PATH
-      : process.argv.slice(2).join(' ')
+  let currentPath = process.argv.includes('--dev')
+    ? process.env.MO_PATH
+    : process.argv.slice(2).join(' ')
 
   let MO_PATH = ''
   let GAME_PATH = ''

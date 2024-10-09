@@ -34,10 +34,9 @@ function main() {
   const { shopsCount, itemsCount, shopsData } = generateShops(MO_PATH, PROFILE)
 
   spinner.succeed(` Added ${itemsCount} items to ${shopsCount} shops\n`)
-  const shopsDir =
-    process.env.NODE_ENV === 'development'
-      ? path.join(MO_PATH, 'mods', process.env.OUTPUT_MOD!, 'r6', 'scripts')
-      : path.join(GAME_PATH, 'r6', 'scripts')
+  const shopsDir = process.argv.includes('--dev')
+    ? path.join(MO_PATH, 'mods', process.env.OUTPUT_MOD!, 'r6', 'scripts')
+    : path.join(GAME_PATH, 'r6', 'scripts')
 
   const shopsPath = path.join(shopsDir, 'ava-generated-shops.reds')
 
@@ -61,7 +60,7 @@ function main() {
 }
 
 function exit() {
-  if (process.env.NODE_ENV === 'development') {
+  if (process.argv.includes('--watch')) {
     process.exit(0)
   }
 
