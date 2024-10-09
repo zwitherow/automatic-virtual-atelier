@@ -1,4 +1,4 @@
-import { appendFileSync, readFileSync, readdirSync } from 'fs-extra'
+import { readFileSync, readdirSync } from 'fs-extra'
 import md5 from 'md5'
 import path from 'path'
 import yaml from 'yaml'
