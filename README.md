@@ -23,7 +23,7 @@ Organize your mods that add ArchiveXL items into separators that begin with **AV
 
 The separators _MUST_ begin with **AVA and then a space**.
 
-Now just run the executable from MO2 and it will generate `r6/scripts/ava-generated-shops.reds` in your selected output mod (or your overwrite if you skipped steps 2 and 8). This will create a shop for each separator as well as a single shop containing all items.
+Now just run the executable from MO2 by selecting **AVA** in the executables dropdown and clicking **Run**. AVA will generate `r6/scripts/ava-generated-shops.reds` in your selected output mod (or your overwrite if you skipped steps 2 and 8). This will create a shop for each separator as well as a single shop containing all items.
 
 ## Uninstall
 
