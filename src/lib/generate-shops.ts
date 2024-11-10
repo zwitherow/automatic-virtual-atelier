@@ -123,7 +123,8 @@ function itemListFromFilePath(filepath: string) {
 
   const parsed = yaml.parse(dedupeNodes(file), {
     logLevel: 'silent',
-    maxAliasCount: -1
+    maxAliasCount: -1,
+    schema: 'failsafe'
   })
 
   const items: string[] = []
