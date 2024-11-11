@@ -1,14 +1,19 @@
 import 'dotenv/config'
-import { ensureDirSync, writeFileSync, statSync } from 'fs-extra'
+import fs from 'node:fs'
 import ora from 'ora'
-import path from 'path'
+import path from 'node:path'
 import { generateShops } from './lib/generate-shops'
 import { parseIni } from './lib/parse-ini'
 import { sizeFormatter, durationFormatter } from 'human-readable'
+import { getSettings } from './lib/get-settings'
 
 main()
 
-function main() {
+async function main() {
+  console.clear()
+
+  const { ALL_ITEMS_SHOP, ITEM_COST } = await getSettings()
+
   const startTime = Date.now()
 
   let spinner = ora(' Parsing ModOrganizer.ini...').start()
@@ -31,7 +36,12 @@ function main() {
 
   spinner = ora(' Generating shops...').start()
 
-  const { shopsCount, itemsCount, shopsData } = generateShops(MO_PATH, PROFILE)
+  const { shopsCount, itemsCount, shopsData } = generateShops(
+    MO_PATH,
+    PROFILE,
+    ALL_ITEMS_SHOP,
+    ITEM_COST
+  )
 
   spinner.succeed(` Added ${itemsCount} items to ${shopsCount} shops\n`)
   const shopsDir = process.argv.includes('--dev')
@@ -43,11 +53,12 @@ function main() {
   const formatSize = sizeFormatter()
   const formatDuration = durationFormatter({ allowMultiples: ['s', 'ms'] })
 
-  let size: string
+  if (!fs.existsSync(shopsDir)) {
+    fs.mkdirSync(shopsDir, { recursive: true })
+  }
 
-  ensureDirSync(shopsDir)
-  writeFileSync(shopsPath, shopsData, 'utf8')
-  size = formatSize(statSync(shopsPath).size) as string
+  fs.writeFileSync(shopsPath, shopsData, 'utf8')
+  const size = formatSize(fs.statSync(shopsPath).size) as string
 
   const duration = formatDuration(Date.now() - startTime) as string
 

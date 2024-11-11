@@ -1,18 +1,24 @@
-import { readFileSync, readdirSync } from 'fs-extra'
+import fs from 'node:fs'
 import md5 from 'md5'
-import path from 'path'
+import path from 'node:path'
 import yaml from 'yaml'
 import type { ShopData } from '../types'
 
-const header = `@addMethod(gameuiInGameMenuGameController)
+export function generateShops(
+  MO_PATH: string,
+  PROFILE: string,
+  ALL_ITEMS_SHOP: boolean,
+  ITEM_COST: string
+) {
+  const header = `@addMethod(gameuiInGameMenuGameController)
 protected cb func RegisterStore(event: ref<VirtualShopRegistration>) -> Bool {
 `
 
-const template = `  event.AddStore(
+  const template = `  event.AddStore(
     n"{{storeId}}",
     "{{storeLabel}}",
     {{itemArray}},
-    [500],
+    [${ITEM_COST}],
     r"base/gameplay/gui/world/adverts/arasaka/arasaka_atlas.inkatlas",
     n"LOGOLOGO",
     ["Legendary"],
@@ -21,9 +27,8 @@ const template = `  event.AddStore(
 
 `
 
-const footer = `}`
+  const footer = `}`
 
-export function generateShops(MO_PATH: string, PROFILE: string) {
   const groups = parseModlist(MO_PATH, PROFILE)
 
   let shopsOutput = ''
@@ -55,24 +60,33 @@ export function generateShops(MO_PATH: string, PROFILE: string) {
     allItems.push(...dedupedItems)
   }
 
+  let shopsData = header + shopsOutput
+
   const allItemsUnique = [...new Set(allItems)]
 
-  const allItemsOutput = template
-    .replace('{{storeId}}', 'avaAllItemsStore')
-    .replace('{{storeLabel}}', '! All Items (AVA)')
-    .replace('{{itemArray}}', JSON.stringify(allItemsUnique))
+  if (ALL_ITEMS_SHOP) {
+    const allItemsOutput = template
+      .replace('{{storeId}}', 'avaAllItemsStore')
+      .replace('{{storeLabel}}', '! All Items (AVA)')
+      .replace('{{itemArray}}', JSON.stringify(allItemsUnique))
+
+    shopsData += allItemsOutput
+  }
+
+  shopsData += footer
 
   return {
     shopsCount: groups.length,
     itemsCount: allItemsUnique.length,
-    shopsData: header + shopsOutput + allItemsOutput + footer
+    shopsData
   }
 }
 
 function parseModlist(MO_PATH: string, PROFILE: string) {
   const modlistPath = path.join(MO_PATH, 'profiles', PROFILE, 'modlist.txt')
 
-  const modlist = readFileSync(modlistPath, 'utf8')
+  const modlist = fs
+    .readFileSync(modlistPath, 'utf8')
     .split('\n')
     .map(line => line.trim())
     .filter(line => line && !line.startsWith('#'))
@@ -112,14 +126,15 @@ function parseModlist(MO_PATH: string, PROFILE: string) {
 }
 
 function fileListFromDir(dir: string) {
-  return readdirSync(dir, { recursive: true })
+  return fs
+    .readdirSync(dir, { recursive: true })
     .filter(file => typeof file === 'string')
     .filter(file => file.endsWith('.yaml') || file.endsWith('.yml'))
     .map(file => path.join(dir, file))
 }
 
 function itemListFromFilePath(filepath: string) {
-  const file = readFileSync(filepath, 'utf8')
+  const file = fs.readFileSync(filepath, 'utf8')
 
   const parsed = yaml.parse(dedupeNodes(file), {
     logLevel: 'silent',
@@ -146,7 +161,7 @@ function itemListFromFilePath(filepath: string) {
     const instances = parsed[key]['$instances']
 
     for (const instance of instances) {
-      const item = key.replace(regex, (match, group) => {
+      const item = key.replace(regex, (_match, group) => {
         return instance[group]
       })
 
