@@ -1,5 +1,5 @@
 import { consola } from 'consola'
-import { existsSync, readFileSync, writeFileSync } from 'node:fs'
+import fs from 'node:fs'
 import { parse, stringify } from 'ini'
 
 export const getSettings = async () => {
@@ -8,9 +8,7 @@ export const getSettings = async () => {
   if (saved) {
     const useSaved = await consola.prompt(
       'AVA.ini found. Use saved settings?',
-      {
-        type: 'confirm'
-      }
+      { type: 'confirm' }
     )
 
     if (useSaved) {
@@ -41,7 +39,7 @@ export const getSettings = async () => {
 
   if (save) {
     const config = stringify({ ALL_ITEMS_SHOP, ITEM_COST })
-    writeFileSync('AVA.ini', config, 'utf-8')
+    fs.writeFileSync('AVA.ini', config, 'utf-8')
   }
 
   console.clear()
@@ -49,11 +47,11 @@ export const getSettings = async () => {
 }
 
 const getSavedSettings = () => {
-  if (!existsSync('AVA.ini')) {
+  if (!fs.existsSync('AVA.ini')) {
     return null
   }
 
-  const settings = parse(readFileSync('AVA.ini', 'utf-8'))
+  const settings = parse(fs.readFileSync('AVA.ini', 'utf-8'))
 
   if (
     settings.ALL_ITEMS_SHOP === undefined ||
