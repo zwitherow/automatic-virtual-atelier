@@ -7,7 +7,7 @@
     "dev": "node --watch --import=tsx src/index.ts --dev --watch",
     "build": "tsup",
     "start": "node dist/index.js --dev",
-    "nexe": "tsup && nexe dist/index.js --build --output bin/AVA.exe",
+    "nexe": "tsup && nexe dist/index.js --build --output bin/AVA.exe --target windows-x64-20.18.0",
     "format": "prettier --write src/**/*.ts",
     "7z": "7z a release/automatic-virtual-atelier-v%npm_package_version%.7z ./bin/AVA.exe"
   },
@@ -15,23 +15,23 @@
   "author": "Zach Witherow",
   "license": "ISC",
   "devDependencies": {
-    "@types/fs-extra": "^11.0.4",
     "@types/ini": "^4.1.1",
     "@types/md5": "^2.3.5",
+    "@types/node": "^22.9.0",
+    "consola": "^3.2.3",
     "dotenv": "^16.4.5",
-    "fs-extra": "^11.2.0",
     "human-readable": "^0.2.1",
     "ini": "^5.0.0",
     "md5": "^2.3.0",
     "nexe": "4.0.0-rc.6",
-    "ora": "^8.1.0",
+    "ora": "^8.1.1",
     "prettier": "^3.3.3",
-    "tsup": "^8.3.0",
-    "tsx": "^4.19.1",
-    "typescript": "^5.6.2",
-    "yaml": "^2.5.1"
+    "tsup": "^8.3.5",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3",
+    "yaml": "^2.6.0"
   },
   "engines": {
-    "node": ">= 18.17"
+    "node": ">= 20.18.0"
   }
 }
