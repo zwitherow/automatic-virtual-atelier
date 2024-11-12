@@ -1,10 +1,10 @@
-import fs from 'node:fs'
+import fs from 'node:fs/promises'
 import md5 from 'md5'
 import path from 'node:path'
 import yaml from 'yaml'
 import type { ShopData } from '../types'
 
-export function generateShops(
+export async function generateShops(
   MO_PATH: string,
   PROFILE: string,
   ALL_ITEMS_SHOP: boolean,
@@ -29,7 +29,7 @@ protected cb func RegisterStore(event: ref<VirtualShopRegistration>) -> Bool {
 
   const footer = `}`
 
-  const groups = parseModlist(MO_PATH, PROFILE)
+  const groups = await parseModlist(MO_PATH, PROFILE)
 
   let shopsOutput = ''
   let allItems: string[] = []
@@ -38,13 +38,13 @@ protected cb func RegisterStore(event: ref<VirtualShopRegistration>) -> Bool {
 
     for (const modPath of group.paths) {
       const fullPath = path.join(MO_PATH, 'mods', modPath)
-      files.push(...fileListFromDir(fullPath))
+      files.push(...(await fileListFromDir(fullPath)))
     }
 
     const items: string[] = []
 
     for (const file of files) {
-      items.push(...itemListFromFilePath(file))
+      items.push(...(await itemListFromFilePath(file)))
     }
 
     const id = md5(group.label)
@@ -82,11 +82,10 @@ protected cb func RegisterStore(event: ref<VirtualShopRegistration>) -> Bool {
   }
 }
 
-function parseModlist(MO_PATH: string, PROFILE: string) {
+async function parseModlist(MO_PATH: string, PROFILE: string) {
   const modlistPath = path.join(MO_PATH, 'profiles', PROFILE, 'modlist.txt')
 
-  const modlist = fs
-    .readFileSync(modlistPath, 'utf8')
+  const modlist = (await fs.readFile(modlistPath, 'utf8'))
     .split('\n')
     .map(line => line.trim())
     .filter(line => line && !line.startsWith('#'))
@@ -125,16 +124,15 @@ function parseModlist(MO_PATH: string, PROFILE: string) {
     }))
 }
 
-function fileListFromDir(dir: string) {
-  return fs
-    .readdirSync(dir, { recursive: true })
+async function fileListFromDir(dir: string) {
+  return (await fs.readdir(dir, { recursive: true }))
     .filter(file => typeof file === 'string')
     .filter(file => file.endsWith('.yaml') || file.endsWith('.yml'))
     .map(file => path.join(dir, file))
 }
 
-function itemListFromFilePath(filepath: string) {
-  const file = fs.readFileSync(filepath, 'utf8')
+async function itemListFromFilePath(filepath: string) {
+  const file = await fs.readFile(filepath, 'utf8')
 
   const parsed = yaml.parse(dedupeNodes(file), {
     logLevel: 'silent',

@@ -1,6 +1,6 @@
-import 'dotenv/config'
-import fs from 'node:fs'
-import ora from 'ora'
+import fs from 'node:fs/promises'
+import { createSpinner } from 'nanospinner'
+import { consola } from 'consola'
 import path from 'node:path'
 import { generateShops } from './lib/generate-shops'
 import { parseIni } from './lib/parse-ini'
@@ -14,38 +14,36 @@ async function main() {
 
   const { ALL_ITEMS_SHOP, ITEM_COST } = await getSettings()
 
-  const startTime = Date.now()
+  performance.mark('start')
 
-  let spinner = ora(' Parsing ModOrganizer.ini...').start()
+  let spinner = createSpinner(' Parsing ModOrganizer.ini...').start()
 
-  const { MO_PATH, GAME_PATH, PROFILE, error } = parseIni()
+  const { MO_PATH, GAME_PATH, PROFILE, error } = await parseIni()
 
   if (error) {
-    spinner.fail(' Error parsing ModOrganizer.ini!\n')
-    console.log(error)
-
-    exit()
-    return
+    spinner.error(' Error parsing ModOrganizer.ini!\n')
+    return exit(error)
   }
 
-  spinner.succeed(' Validated ModOrganizer.ini\n')
+  spinner.success(' Validated ModOrganizer.ini\n')
 
   console.log(' - Game Path:', GAME_PATH)
   console.log(' - MO2 Path:', MO_PATH)
   console.log(' - Profile:', PROFILE, '\n')
 
-  spinner = ora(' Generating shops...').start()
+  spinner = createSpinner(' Generating shops...').start()
 
-  const { shopsCount, itemsCount, shopsData } = generateShops(
+  const { shopsCount, itemsCount, shopsData } = await generateShops(
     MO_PATH,
     PROFILE,
     ALL_ITEMS_SHOP,
     ITEM_COST
   )
 
-  spinner.succeed(` Added ${itemsCount} items to ${shopsCount} shops\n`)
-  const shopsDir = process.argv.includes('--dev')
-    ? path.join(MO_PATH, 'mods', process.env.OUTPUT_MOD!, 'r6', 'scripts')
+  spinner.success(` Added ${itemsCount} items to ${shopsCount} shops\n`)
+
+  const shopsDir = process.env.OUTPUT_MOD
+    ? path.join(MO_PATH, 'mods', process.env.OUTPUT_MOD, 'r6', 'scripts')
     : path.join(GAME_PATH, 'r6', 'scripts')
 
   const shopsPath = path.join(shopsDir, 'ava-generated-shops.reds')
@@ -53,26 +51,31 @@ async function main() {
   const formatSize = sizeFormatter()
   const formatDuration = durationFormatter({ allowMultiples: ['s', 'ms'] })
 
-  if (!fs.existsSync(shopsDir)) {
-    fs.mkdirSync(shopsDir, { recursive: true })
+  if (!(await fs.stat(shopsDir).catch(() => false))) {
+    await fs.mkdir(shopsDir, { recursive: true })
   }
 
-  fs.writeFileSync(shopsPath, shopsData, 'utf8')
-  const size = formatSize(fs.statSync(shopsPath).size) as string
+  await fs.writeFile(shopsPath, shopsData, 'utf8')
+  const size = formatSize((await fs.stat(shopsPath)).size) as string
 
-  const duration = formatDuration(Date.now() - startTime) as string
+  performance.mark('end')
+  const elapsed = performance.measure('Duration', 'start', 'end')
+  const duration = formatDuration(elapsed.duration)
 
   console.log(' - Path:', shopsPath)
   console.log(' - Size:', size)
   console.log(' - Time:', duration, '\n')
 
-  exit()
-  return
+  return exit()
 }
 
-function exit() {
-  if (process.argv.includes('--watch')) {
+export function exit(error?: unknown) {
+  if (process.env.MO_PATH && !error) {
     process.exit(0)
+  }
+
+  if (error) {
+    consola.error(error)
   }
 
   console.log('Press any key to exit...')

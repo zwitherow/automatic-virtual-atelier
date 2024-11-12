@@ -1,12 +1,15 @@
-import fs from 'node:fs'
+import fs from 'node:fs/promises'
 import { parse } from 'ini'
 import path from 'node:path'
 
-export function parseIni() {
+export async function parseIni() {
   let lastPath: string | null = null
-  let currentPath = process.argv.includes('--dev')
-    ? process.env.MO_PATH
-    : process.argv.slice(2).join(' ')
+  let currentPath =
+    process.env.MO_PATH ||
+    process.argv
+      .slice(2)
+      .filter(el => !el.startsWith('--'))
+      .join(' ')
 
   let MO_PATH = ''
   let GAME_PATH = ''
@@ -18,22 +21,22 @@ export function parseIni() {
       GAME_PATH,
       PROFILE,
       error:
-        " ! You must add your MO2 path in the 'Arguments' field in MO2's executable settings for AVA.\n"
+        "You must add your MO2 path in the 'Arguments' field in MO2's executable settings for AVA."
     }
   }
 
-  if (!fs.existsSync(currentPath)) {
+  if (!(await fs.stat(currentPath).catch(() => false))) {
     return {
       MO_PATH,
       GAME_PATH,
       PROFILE,
       error:
-        " ! The path provided in the 'Arguments' field in MO2's executable settings for AVA does not exist.\n"
+        "The path provided in the 'Arguments' field in MO2's executable settings for AVA does not exist."
     }
   }
 
   while (currentPath !== lastPath) {
-    const files = fs.readdirSync(currentPath)
+    const files = await fs.readdir(currentPath)
 
     if (files.includes('ModOrganizer.ini')) {
       MO_PATH = currentPath
@@ -49,11 +52,11 @@ export function parseIni() {
       MO_PATH,
       GAME_PATH,
       PROFILE,
-      error: " ! Couldn't find ModOrganizer.ini\n"
+      error: "Couldn't find ModOrganizer.ini"
     }
   }
 
-  const ini = fs.readFileSync(path.join(MO_PATH, 'ModOrganizer.ini'), 'utf8')
+  const ini = await fs.readFile(path.join(MO_PATH, 'ModOrganizer.ini'), 'utf8')
   const config = parse(ini)
 
   const regex = /@ByteArray\(([^)]*)\)/
@@ -72,7 +75,7 @@ export function parseIni() {
       MO_PATH,
       GAME_PATH,
       PROFILE,
-      error: ' ! Your ModOrganizer.ini appears to be invalid\n'
+      error: 'Your ModOrganizer.ini appears to be invalid'
     }
   }
 
@@ -82,12 +85,12 @@ export function parseIni() {
   let error: string | null = null
 
   if (!GAME_PATH) {
-    error = " ! Failed to parse 'gamePath' in ModOrganizer.ini\n"
+    error = "Failed to parse 'gamePath' in ModOrganizer.ini"
   }
 
   if (!PROFILE) {
-    error += " ! Failed to parse 'selected_profile' in ModOrganizer.ini\n"
+    error += "Failed to parse 'selected_profile' in ModOrganizer.ini"
   }
 
-  return { MO_PATH: MO_PATH, GAME_PATH, PROFILE, error }
+  return { MO_PATH, GAME_PATH, PROFILE, error }
 }

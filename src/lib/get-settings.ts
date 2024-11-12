@@ -1,11 +1,15 @@
 import { consola } from 'consola'
-import fs from 'node:fs'
+import fs from 'node:fs/promises'
 import { parse, stringify } from 'ini'
 
-export const getSettings = async () => {
-  const saved = getSavedSettings()
+export async function getSettings() {
+  const saved = await getSavedSettings()
 
   if (saved) {
+    if (process.argv.includes('--no-prompt')) {
+      return saved
+    }
+
     const useSaved = await consola.prompt(
       'AVA.ini found. Use saved settings?',
       { type: 'confirm' }
@@ -39,19 +43,20 @@ export const getSettings = async () => {
 
   if (save) {
     const config = stringify({ ALL_ITEMS_SHOP, ITEM_COST })
-    fs.writeFileSync('AVA.ini', config, 'utf-8')
+    fs.writeFile('AVA.ini', config, 'utf-8')
   }
 
   console.clear()
   return { ALL_ITEMS_SHOP, ITEM_COST }
 }
 
-const getSavedSettings = () => {
-  if (!fs.existsSync('AVA.ini')) {
+async function getSavedSettings() {
+  const iniExists = !!(await fs.stat('AVA.ini').catch(() => false))
+  if (!iniExists) {
     return null
   }
 
-  const settings = parse(fs.readFileSync('AVA.ini', 'utf-8'))
+  const settings = parse(await fs.readFile('AVA.ini', 'utf-8'))
 
   if (
     settings.ALL_ITEMS_SHOP === undefined ||
@@ -74,7 +79,7 @@ const getSavedSettings = () => {
   }
 }
 
-const getStaticCost = async () => {
+async function getStaticCost() {
   const input = await consola.prompt('Enter the default cost for all items', {
     type: 'text'
   })
