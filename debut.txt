@@ -1,4 +1,0 @@
-MO_PATH: /mnt/d/modding/CP2077/zro
-GAME_PATH: D:\games\gog\Cyberpunk 2077
-PROFILE: Default
-error: null
