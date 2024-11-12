@@ -70,7 +70,7 @@ async function main() {
 }
 
 export function exit(error?: unknown) {
-  if (process.env.MO_PATH && !error) {
+  if ((process.env.MO_PATH || process.argv.includes('--no-pause')) && !error) {
     process.exit(0)
   }
 
