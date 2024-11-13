@@ -25,6 +25,16 @@ The separators _MUST_ begin with **AVA and then a space**.
 
 Now just run the executable from MO2 by selecting **AVA** in the executables dropdown and clicking **Run**. AVA will generate `r6/scripts/ava-generated-shops.reds` in your selected output mod (or your overwrite if you skipped steps 2 and 8). This will create a shop for each separator as well as a single shop containing all items.
 
+### Arguments
+
+```
+$ AVA [--no-prompt] [--no-pause] <mo2path>
+```
+
+- `--no-prompt` - Skip the interactive prompts if `AVA.ini` exists and is valid
+- `--no-pause` - Automatically exit if there are no errors
+- `mo2path` - Path to your MO2 root directory or a subdirectory (AVA will traverse upwards until `ModOrganizer.ini` is found)
+
 ## Uninstall
 
 Remove the mod and the output mod you created in step 2 from Mod Organizer. If you didn't create an output mod, delete `r6/scripts/ava-generated-shops.reds` from your overwrite.
@@ -45,10 +55,6 @@ You need the following to bundle the JS app:
 
 - [Git](https://git-scm.com/)
 - [NodeJS](https://nodejs.org/)
-
-The requirements for bundling NodeJS with the JS app (creating the executable) can be found [here](https://github.com/nexe/nexe?tab=readme-ov-file#compiling-the-nexe-executable).
-
-If you get the error `vcbuild.bat nosign release x64 exited with code: 1` you likely need to install the latest build of [NASM](https://www.nasm.us/).
 
 ### Build steps
 
@@ -73,7 +79,7 @@ npm i
 Build the executable
 
 ```
-npm run nexe
+npm run pkg
 ```
 
 You should now have an EXE located at `bin/AVA.exe`
