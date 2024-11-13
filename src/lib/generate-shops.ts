@@ -31,34 +31,37 @@ protected cb func RegisterStore(event: ref<VirtualShopRegistration>) -> Bool {
 
   const groups = await parseModlist(MO_PATH, PROFILE)
 
-  let shopsOutput = ''
-  let allItems: string[] = []
-  for (const group of groups) {
-    const files: string[] = []
+  const parsed = await Promise.all(
+    groups.map(async group => {
+      const files = (
+        await Promise.all(
+          group.paths.map(modPath =>
+            fileListFromDir(path.join(MO_PATH, 'mods', modPath)).catch(() => [])
+          )
+        )
+      ).flat()
 
-    for (const modPath of group.paths) {
-      const fullPath = path.join(MO_PATH, 'mods', modPath)
-      files.push(...(await fileListFromDir(fullPath)))
-    }
+      const items = (
+        await Promise.all(
+          files.map(file => itemListFromFilePath(file).catch(() => []))
+        )
+      ).flat()
 
-    const items: string[] = []
+      const id = md5(group.label)
 
-    for (const file of files) {
-      items.push(...(await itemListFromFilePath(file)))
-    }
+      const dedupedItems = removeDedupe(items)
 
-    const id = md5(group.label)
+      const output = template
+        .replace('{{storeId}}', id)
+        .replace('{{storeLabel}}', group.label)
+        .replace('{{itemArray}}', JSON.stringify(dedupedItems))
 
-    const dedupedItems = removeDedupe(items)
+      return { output, items: dedupedItems }
+    })
+  )
 
-    const output = template
-      .replace('{{storeId}}', id)
-      .replace('{{storeLabel}}', group.label)
-      .replace('{{itemArray}}', JSON.stringify(dedupedItems))
-
-    shopsOutput += output
-    allItems.push(...dedupedItems)
-  }
+  const shopsOutput = parsed.map(({ output }) => output).join('')
+  const allItems = parsed.flatMap(({ items }) => items)
 
   let shopsData = header + shopsOutput
 
