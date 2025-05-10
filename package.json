@@ -1,6 +1,6 @@
 {
   "name": "automatic-virtual-atelier",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Automatically generate Virtual Atelier shops for installed mods based on separators in Mod Organizer.",
   "main": "index.ts",
   "scripts": {
